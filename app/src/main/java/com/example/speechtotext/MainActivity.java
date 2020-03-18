@@ -6,7 +6,6 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
@@ -66,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en");
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        //recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
 
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -83,9 +82,6 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
                 }
             }
         });
-
-        MediaRecorder myAudioRecorder = new MediaRecorder();
-        myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
     }
 
     @Override
@@ -147,7 +143,12 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     @Override
     public void onError(int i) {
         String errorMessage = getErrorText(i);
+
         Log.d(TAG, "FAILED " + errorMessage);
+
+        Toast.makeText(getApplicationContext(),
+                "FAILED " + errorMessage, Toast.LENGTH_SHORT).show();
+
         returnedText.setText(errorMessage);
         toggleButton.setChecked(false);
     }
