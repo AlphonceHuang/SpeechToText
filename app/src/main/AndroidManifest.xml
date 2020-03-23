@@ -11,7 +11,8 @@
         android:label="語音轉文字"
         android:roundIcon="@drawable/kitty046"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:fullBackupContent="true">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
