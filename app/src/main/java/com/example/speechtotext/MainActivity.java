@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -31,8 +32,9 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     private ToggleButton toggleButton;
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
-    private String TAG = "speech";
+    private String TAG = "Alan";
     private final int REQUEST_AUDIO_PERMISSION_RESULT=1000;
+    //final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +70,9 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
             Toast.makeText(getApplicationContext(),"no microphone present", Toast.LENGTH_SHORT).show();
         }
 
-        returnedText = findViewById(R.id.textView1);
-        progressBar = findViewById(R.id.progressBar1);
-        toggleButton = findViewById(R.id.toggleButton1);
+        returnedText = findViewById(R.id.textView);
+        progressBar = findViewById(R.id.progressBar);
+        toggleButton = findViewById(R.id.toggleButton);
 
         List activities = pm.queryIntentActivities( new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
         if( activities.size() == 0 ) {
@@ -171,6 +173,17 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         Log.i(TAG, "onEndOfSpeech");
         progressBar.setIndeterminate(true);
         toggleButton.setChecked(false);
+/*
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Do something after 5s = 5000ms
+
+                Log.d("RECOGNIZER","done");
+                speech.startListening(recognizerIntent);
+            }
+        }, 1000);
+ */
     }
 
     @Override
