@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     private ToggleButton toggleButton;
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
-    private String TAG = "Alan";
+    private String TAG = "speech";
     private final int REQUEST_AUDIO_PERMISSION_RESULT=1000;
 
     @Override
@@ -36,23 +36,35 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) ==
-                    PackageManager.PERMISSION_GRANTED) {
-                // put your code for Version>=Marshmallow
-            } else {
-                if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
-                    Toast.makeText(this,
-                            "App required access to audio", Toast.LENGTH_SHORT).show();
+
+        PackageManager pm = getPackageManager();
+        boolean micPresent = pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
+        //Log.w(TAG, "micPresent:"+micPresent);
+
+        if (micPresent) {
+            Log.w(TAG, "microphone presented");
+            Toast.makeText(getApplicationContext(),
+                    "microphone presented", Toast.LENGTH_SHORT).show();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) ==
+                        PackageManager.PERMISSION_GRANTED) {
+                    Log.w(TAG, "RECORD_AUDIO permission granted.");
+                } else {
+                    if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
+                        Toast.makeText(this,
+                                "App required access to audio", Toast.LENGTH_SHORT).show();
+                    }
+                    requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION_RESULT);
                 }
-                requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO
-                }, REQUEST_AUDIO_PERMISSION_RESULT);
+
+            } else {
+                // put your code for Version < Marshmallow
             }
-
-        } else {
-            // put your code for Version < Marshmallow
+        }else{
+            Log.w(TAG, "no microphone present.");
+            Toast.makeText(getApplicationContext(),"no microphone present", Toast.LENGTH_SHORT).show();
         }
-
 
         returnedText = findViewById(R.id.textView1);
         progressBar = findViewById(R.id.progressBar1);
@@ -65,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en");
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
-        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
+        recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
 
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -105,6 +117,8 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     protected void onPause() {
         super.onPause();
         if (speech != null) {
+            //speech.stopListening();
+            //speech.cancel();
             speech.destroy();
             Log.i(TAG, "destroy");
         }
@@ -157,11 +171,14 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     public void onResults(Bundle bundle) {
         Log.i(TAG, "onResults");
         ArrayList<String> matches = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        String text = "";
-        for (String result : matches){
-            text += result + "\n";
+        StringBuilder text = new StringBuilder();
+        if (matches != null) {
+            for (String result : matches){
+                text.append(result).append("\n");
+            }
         }
-        returnedText.setText(text);
+        returnedText.setText(text.toString());
+        Log.w(TAG, text.toString());
     }
 
     @Override
