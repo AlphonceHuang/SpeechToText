@@ -6,6 +6,8 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements RecognitionListener {
 
@@ -39,7 +42,6 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
 
         PackageManager pm = getPackageManager();
         boolean micPresent = pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
-        //Log.w(TAG, "micPresent:"+micPresent);
 
         if (micPresent) {
             Log.w(TAG, "microphone presented");
@@ -70,11 +72,28 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         progressBar = findViewById(R.id.progressBar1);
         toggleButton = findViewById(R.id.toggleButton1);
 
+        List activities = pm.queryIntentActivities( new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
+        if( activities.size() == 0 ) {
+            toggleButton.setEnabled(false);
+            Log.w(TAG, "not support recognize speech");
+        }
+        //Log.w(TAG, "activity size:"+activities.size());   // 1
+
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(getBaseContext().CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        if( info == null || !info.isConnected() )
+        {
+            Log.w(TAG, "no network.");
+            Toast.makeText(getApplicationContext(), "No network", Toast.LENGTH_SHORT).show();
+        }
 
         progressBar.setVisibility(View.INVISIBLE);
         speech = SpeechRecognizer.createSpeechRecognizer(this);
         speech.setRecognitionListener(this);
-        recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+
+        // ACTION_RECOGNIZE_SPEECH: 透過 Android 內建語音辨識
+        // ACTION_WEB_SEARCH: 透過外掛的語音辨識 App
+        recognizerIntent = new Intent(RecognizerIntent.ACTION_WEB_SEARCH);
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en");
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, this.getPackageName());
         recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -114,11 +133,11 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         if (speech != null) {
-            //speech.stopListening();
-            //speech.cancel();
+            speech.stopListening();
+            speech.cancel();
             speech.destroy();
             Log.i(TAG, "destroy");
         }
