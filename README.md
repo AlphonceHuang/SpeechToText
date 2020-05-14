@@ -1,5 +1,5 @@
 # SpeechToText
 Google speech to text sample without google dialog.
 
-![image](https://github.com/AlphonceHuang/SpeechToText/blob/master/Screenshot_20200317-144032.png)
-![image](https://github.com/AlphonceHuang/SpeechToText/blob/master/Screenshot_20200317-145531.png)
+![image](https://github.com/AlphonceHuang/SpeechToText/blob/master/Screenshot_20200514-144736.png)
+
