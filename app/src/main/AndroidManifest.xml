@@ -9,7 +9,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/kitty046"
-        android:label="語音轉文字"
+        android:label="@string/app_name"
         android:roundIcon="@drawable/kitty046"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"

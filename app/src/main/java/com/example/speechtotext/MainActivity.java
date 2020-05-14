@@ -8,14 +8,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -41,11 +44,9 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        // 是否有麥克風
         PackageManager pm = getPackageManager();
-        boolean micPresent = pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
-
-        if (micPresent) {
+        if (pm.hasSystemFeature(PackageManager.FEATURE_MICROPHONE)) {
             Log.w(TAG, "microphone presented");
             Toast.makeText(getApplicationContext(),
                     "microphone presented", Toast.LENGTH_SHORT).show();
@@ -70,24 +71,38 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
             Toast.makeText(getApplicationContext(),"no microphone present", Toast.LENGTH_SHORT).show();
         }
 
-        returnedText = findViewById(R.id.textView);
-        progressBar = findViewById(R.id.progressBar);
-        toggleButton = findViewById(R.id.toggleButton);
-
-        List activities = pm.queryIntentActivities( new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
-        if( activities.size() == 0 ) {
-            toggleButton.setEnabled(false);
-            Log.w(TAG, "not support recognize speech");
-        }
-        //Log.w(TAG, "activity size:"+activities.size());   // 1
-
+        // 確認是否有連上網路
         ConnectivityManager cm = (ConnectivityManager)getSystemService(getBaseContext().CONNECTIVITY_SERVICE);
-        NetworkInfo info = cm.getActiveNetworkInfo();
+        NetworkInfo info = null;
+        if (cm != null) {
+            info = cm.getActiveNetworkInfo();
+        }
         if( info == null || !info.isConnected() )
         {
             Log.w(TAG, "no network.");
             Toast.makeText(getApplicationContext(), "No network", Toast.LENGTH_SHORT).show();
+            //return;
         }
+
+        // 是否有安裝語音辨識
+        List activities = pm.queryIntentActivities( new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
+        if( activities.size() == 0 ) {
+            toggleButton.setEnabled(false);
+            Log.w(TAG, "not support recognize speech");
+            Toast.makeText(getApplicationContext(), "not support recognize speech", Toast.LENGTH_SHORT).show();
+
+            String url="https://market.android.com/details?id=com.google.android.voicesearch";
+            Intent ie = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            //啟動Intent
+            startActivity(ie);
+        }else {
+            Log.w(TAG, "voice search present:" + activities.toString());
+        }
+
+
+        returnedText = findViewById(R.id.textView);
+        progressBar = findViewById(R.id.progressBar);
+        toggleButton = findViewById(R.id.toggleButton);
 
         progressBar.setVisibility(View.INVISIBLE);
         speech = SpeechRecognizer.createSpeechRecognizer(this);
@@ -125,6 +140,8 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getApplicationContext(),
                         "Application will not have audio on record", Toast.LENGTH_SHORT).show();
+            }else{
+                Log.w(TAG, "RECORD_AUDIO permission granted.");
             }
         }
     }
@@ -159,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
 
     @Override
     public void onRmsChanged(float v) {
-        Log.i(TAG, "onRmsChanged: " + v);
+        //Log.i(TAG, "onRmsChanged: " + v);
         progressBar.setProgress((int) v);
     }
 
@@ -174,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         progressBar.setIndeterminate(true);
         toggleButton.setChecked(false);
 /*
+        // 間隔一段時間又開始聽
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -183,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
                 speech.startListening(recognizerIntent);
             }
         }, 1000);
- */
+*/
     }
 
     @Override
