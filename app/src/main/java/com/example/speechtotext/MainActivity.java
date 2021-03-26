@@ -91,10 +91,10 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
             Log.w(TAG, "not support recognize speech");
             Toast.makeText(getApplicationContext(), "not support recognize speech", Toast.LENGTH_SHORT).show();
 
-            String url="https://market.android.com/details?id=com.google.android.voicesearch";
-            Intent ie = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            //String url="https://market.android.com/details?id=com.google.android.voicesearch";
+            //Intent ie = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             //啟動Intent
-            startActivity(ie);
+            //startActivity(ie);
         }else {
             Log.w(TAG, "voice search present:" + activities.toString());
         }

@@ -8,9 +8,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/kitty046"
+        android:icon="@drawable/talking"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/kitty046"
+        android:roundIcon="@drawable/talking"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:fullBackupContent="true">
