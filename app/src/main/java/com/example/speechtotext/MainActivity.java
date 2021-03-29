@@ -8,23 +8,18 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,9 +30,8 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     private ToggleButton toggleButton;
     private SpeechRecognizer speech = null;
     private Intent recognizerIntent;
-    private String TAG = "Alan";
+    private final String TAG = "Alan";
     private final int REQUEST_AUDIO_PERMISSION_RESULT=1000;
-    //final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
 
             } else {
                 // put your code for Version < Marshmallow
+                Log.w(TAG, "Build.VERSION.SDK_INT<Build.VERSION_CODES.M");
             }
         }else{
             Log.w(TAG, "no microphone present.");
@@ -72,7 +67,9 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         }
 
         // 確認是否有連上網路
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(getBaseContext().CONNECTIVITY_SERVICE);
+        //ConnectivityManager cm = (ConnectivityManager)getSystemService(getBaseContext().CONNECTIVITY_SERVICE);
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+
         NetworkInfo info = null;
         if (cm != null) {
             info = cm.getActiveNetworkInfo();
@@ -158,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
             speech.stopListening();
             speech.cancel();
             speech.destroy();
-            Log.i(TAG, "destroy");
+            Log.w(TAG, "destroy");
         }
     }
 
@@ -169,25 +166,25 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
 
     @Override
     public void onBeginningOfSpeech() {
-        Log.i(TAG, "onBeginningOfSpeech");
+        Log.w(TAG, "onBeginningOfSpeech");
         progressBar.setIndeterminate(false);
         progressBar.setMax(10);
     }
 
     @Override
     public void onRmsChanged(float v) {
-        //Log.i(TAG, "onRmsChanged: " + v);
+        //Log.w(TAG, "onRmsChanged: " + v);
         progressBar.setProgress((int) v);
     }
 
     @Override
     public void onBufferReceived(byte[] bytes) {
-        Log.i(TAG, "onBufferReceived: " + bytes);
+        Log.w(TAG, "onBufferReceived: " + bytes);
     }
 
     @Override
     public void onEndOfSpeech() {
-        Log.i(TAG, "onEndOfSpeech");
+        Log.w(TAG, "onEndOfSpeech");
         progressBar.setIndeterminate(true);
         toggleButton.setChecked(false);
 /*
@@ -208,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     public void onError(int i) {
         String errorMessage = getErrorText(i);
 
-        Log.d(TAG, "FAILED " + errorMessage);
+        Log.w(TAG, "FAILED " + errorMessage);
 
         Toast.makeText(getApplicationContext(),
                 "FAILED " + errorMessage, Toast.LENGTH_SHORT).show();
@@ -219,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
 
     @Override
     public void onResults(Bundle bundle) {
-        Log.i(TAG, "onResults");
+        Log.w(TAG, "onResults");
         ArrayList<String> matches = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         StringBuilder text = new StringBuilder();
         if (matches != null) {
@@ -233,12 +230,12 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
 
     @Override
     public void onPartialResults(Bundle bundle) {
-        Log.i(TAG, "onPartialResults");
+        Log.w(TAG, "onPartialResults");
     }
 
     @Override
     public void onEvent(int i, Bundle bundle) {
-        Log.i(TAG, "onEvent");
+        Log.w(TAG, "onEvent");
     }
 
 
